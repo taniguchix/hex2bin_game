@@ -255,7 +255,6 @@ int count = 0;
 
 int level = 0;
 int level_max = 1;
-bool sound = true;
 bool hi_score_update = false;
 bool level_update = false;
 int menu_select = 0;
@@ -360,7 +359,10 @@ void loop() {
                   if (level >= level_max) level = 0;
                   break;
                 case 1:
-                  if (input & (LEFT_BUTTON | RIGHT_BUTTON)) sound = !sound;
+                  if (input & (LEFT_BUTTON | RIGHT_BUTTON)) {
+                    display.audio.toggle();
+                    display.audio.saveOnOff();
+                  }
                   break;
               }
               now_push = true;
@@ -412,8 +414,8 @@ void loop() {
             case 5: display.print(F("ALL64")); break;
           }
           display.setCursor(28, 32); display.print(F("SOUND:"));
-          if (sound) display.print(F("ON"));
-          else       display.print(F("OFF"));
+          if (display.audio.enabled()) display.print(F("ON"));
+          else                         display.print(F("OFF"));
           display.setCursor(28, 48); display.print(F("HIGH SCORE"));
           display.setCursor(28, 56); display.print(F("HELP"));
           if (menu_select < 2) {
@@ -484,7 +486,7 @@ void loop() {
                   count_time = 999;
                 }
                 miss_flag = true;
-                if (sound) tunes.tone(1046, 250);
+                tunes.tone(1046, 250);
               } else {
                 input_cur++;
                 if (input_cur >= 4) {
@@ -496,7 +498,7 @@ void loop() {
                   mondai_cur++;
                 }
                 if (mondai_cur >= mondai_max[level]) {
-                  if (sound) tunes.playScore(saruoto_11);
+                  tunes.playScore(saruoto_11);
                   if (hi_score[level] > count_time) {
                     hi_score[level] = count_time;
                     hi_score_update = true;
@@ -527,9 +529,7 @@ void loop() {
             if (count >= 30) {
               count = 0;
               if (count_time < 999) {
-                if (sound) {
-                  if (!tunes.playing()) tunes.tone(523, 100);
-                }
+                if (!tunes.playing()) tunes.tone(523, 100);
                 count_time++;
               }
             }
